@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-from kokoro import KPipeline
+from kokoro_onnx import Kokoro
 import soundfile as sf
 import io
+import os
 
 app = FastAPI()
 
@@ -14,22 +15,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-pipeline = KPipeline(lang_code='a') 
-
 @app.get("/")
 def home():
-    return {"status": "Kokoro TTS API is running free on Render!"}
+    return {"status": "Kokoro ONNX TTS API is running live on Render!"}
 
 @app.get("/synthesize")
 def synthesize(text: str, voice: str = "af_bella"):
     try:
-        generator = pipeline(text, voice=voice, speed=1.0, split_pattern=r'\n+')
-        for i, (gs, ps, audio) in enumerate(generator):
-            audio_io = io.BytesIO()
-            sf.write(audio_io, audio, 24000, format='WAV')
-            audio_io.seek(0)
-            return Response(content=audio_io.read(), media_type="audio/wav")
-        return {"error": "Failed to generate audio"}
+        # Kokoro ONNX light engine
+        kokoro = Kokoro("kokoro-v1.0.onnx", "voices.json")
+        samples, sample_rate = kokoro.create(text, voice=voice, speed=1.0, lang="en-us")
+        
+        audio_io = io.BytesIO()
+        sf.write(audio_io, samples, sample_rate, format='WAV')
+        audio_io.seek(0)
+        
+        return Response(content=audio_io.read(), media_type="audio/wav")
     except Exception as e:
         return {"error": str(e)}
-      
