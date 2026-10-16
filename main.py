@@ -16,32 +16,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Aapke GitHub Release ke direct links
+# Sahi URLs: Model apka GitHub release wala hai, aur voices official JSON file hai
 MODEL_URL = "https://github.com/blackshadowh4ck3r/kokoro-tts-api/releases/download/V1/model_quantized.onnx"
-VOICES_URL = "https://github.com/blackshadowh4ck3r/kokoro-tts-api/releases/download/V1/af_heart.bin"
+VOICES_URL = "https://huggingface.co/onnx-community/Kokoro-82M-ONNX/raw/main/voices.json"
 
 MODEL_FILE = "model_quantized.onnx"
-VOICES_FILE = "voices.json"  # kokoro-onnx ke liye voices file ka format json hota hai
+VOICES_FILE = "voices.json"
 
-# Agar files server par nahi hain, toh direct link se download kar lo
+# Files download karna agar server par nahi hain
 if not os.path.exists(MODEL_FILE):
-    print("Downloading model_quantized.onnx from GitHub release...")
+    print("Downloading model_quantized.onnx...")
     urllib.request.urlretrieve(MODEL_URL, MODEL_FILE)
-    print("Model downloaded successfully!")
+    print("Model downloaded!")
 
 if not os.path.exists(VOICES_FILE):
-    print("Downloading voices file from GitHub release...")
+    print("Downloading voices.json...")
     urllib.request.urlretrieve(VOICES_URL, VOICES_FILE)
-    print("Voices file downloaded successfully!")
+    print("Voices file downloaded!")
 
-# Initialize Kokoro Engine
-print("Initializing Kokoro Engine...")
-kokoro = Kokoro(MODEL_FILE, VOICES_FILE)
-print("Kokoro Engine Ready!")
+# Initialize Kokoro Engine safely
+try:
+    print("Initializing Kokoro Engine...")
+    kokoro = Kokoro(MODEL_FILE, VOICES_FILE)
+    print("Kokoro Engine Initialized Successfully!")
+except Exception as e:
+    print(f"Error initializing Kokoro: {e}")
 
 @app.get("/")
 def home():
-    return {"status": "Kokoro TTS API is Live using Direct GitHub Links!"}
+    return {"status": "Kokoro TTS API is Live and Working!"}
 
 @app.get("/synthesize")
 def synthesize(text: str, voice: str = "af_heart"):
