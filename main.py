@@ -1,10 +1,9 @@
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from kokoro_onnx import Kokoro
+from huggingface_hub import hf_hub_download
 import soundfile as sf
 import io
-import os
-import urllib.request
 
 app = FastAPI()
 
@@ -16,25 +15,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Automatic Model & Voices Downloader
-MODEL_FILE = "kokoro-v1.0.onnx"
-VOICES_FILE = "voices.json"
-
-MODEL_URL = "https://github.com/thebloke/kokoro-onnx-models/releases/download/v1.0/kokoro-v1.0.onnx"
-VOICES_URL = "https://github.com/thebloke/kokoro-onnx-models/releases/download/v1.0/voices.json"
-
-def download_file(url, filename):
-    if not os.path.exists(filename):
-        print(f"Downloading {filename}...")
-        urllib.request.urlretrieve(url, filename)
-        print(f"{filename} downloaded successfully!")
-
-# Auto download required files on server start
-download_file(MODEL_URL, MODEL_FILE)
-download_file(VOICES_URL, VOICES_FILE)
+print("Downloading Kokoro ONNX model from Hugging Face...")
+# Automatically download model and voices from Hugging Face repository
+model_path = hf_hub_download(repo_id="onnx-community/Kokoro-82M-ONNX", filename="onnx/model_q8.onnx")
+voices_path = hf_hub_download(repo_id="onnx-community/Kokoro-82M-ONNX", filename="voices.json")
 
 # Initialize Kokoro Engine
-kokoro = Kokoro(MODEL_FILE, VOICES_FILE)
+kokoro = Kokoro(model_path, voices_path)
+print("Kokoro Engine initialized successfully!")
 
 @app.get("/")
 def home():
