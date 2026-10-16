@@ -1,6 +1,7 @@
 fastapi
 uvicorn
-kokoro
 soundfile
-torch
 numpy
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+kokoro-onnx
