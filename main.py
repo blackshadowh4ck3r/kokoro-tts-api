@@ -15,29 +15,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-print("Downloading Kokoro ONNX model and voices from Hugging Face...")
-
-# Sahi ONNX repository aur filenames
-model_path = hf_hub_download(repo_id="onnx-community/Kokoro-82M-ONNX", filename="kokoro-v1.0.onnx")
+print(10 * "-" + " DOWNLOADING KOKORO MODEL " + 10 * "-")
+# Hugging Face se model automatically download hoga (render par bina kisi limit ke)
+model_path = hf_hub_download(repo_id="onnx-community/Kokoro-82M-ONNX", filename="model.onnx")
 voices_path = hf_hub_download(repo_id="onnx-community/Kokoro-82M-ONNX", filename="voices.json")
 
-# Initialize Kokoro Engine
 kokoro = Kokoro(model_path, voices_path)
-print("Kokoro Engine initialized successfully!")
+print("Kokoro Engine Ready!")
 
 @app.get("/")
 def home():
-    return {"status": "Kokoro ONNX TTS Engine is Ready & Live!"}
+    return {"status": "Server is live and ready!"}
 
 @app.get("/synthesize")
 def synthesize(text: str, voice: str = "af_bella"):
     try:
         samples, sample_rate = kokoro.create(text, voice=voice, speed=1.0, lang="en-us")
-        
         audio_io = io.BytesIO()
         sf.write(audio_io, samples, sample_rate, format='WAV')
         audio_io.seek(0)
-        
         return Response(content=audio_io.read(), media_type="audio/wav")
     except Exception as e:
         return {"error": str(e)}
