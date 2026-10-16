@@ -17,9 +17,9 @@ app.add_middleware(
 
 print("Downloading Kokoro ONNX model and voices from Hugging Face...")
 
-# Working repository aur sahi filenames
-model_path = hf_hub_download(repo_id="hexgrad/Kokoro-82M", filename="kokoro-v1.0.onnx")
-voices_path = hf_hub_download(repo_id="hexgrad/Kokoro-82M", filename="voices.json")
+# Sahi ONNX repository aur filenames
+model_path = hf_hub_download(repo_id="onnx-community/Kokoro-82M-ONNX", filename="kokoro-v1.0.onnx")
+voices_path = hf_hub_download(repo_id="onnx-community/Kokoro-82M-ONNX", filename="voices.json")
 
 # Initialize Kokoro Engine
 kokoro = Kokoro(model_path, voices_path)
